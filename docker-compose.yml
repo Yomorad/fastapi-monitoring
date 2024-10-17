@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  # PostgreSQL база данных
+  db_service:
+    image: postgres:16
+    env_file: .env
+    expose:
+      - "5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    restart: always
+
+  # Backend FastAPI приложение
+  backend_service:
+    build:
+      context: ./app_backend_fastapi
+    env_file: .env
+    depends_on:
+      - db_service
+    ports:
+      - "8000:8000"
+
+  # Парсер
+  parser_service:
+    build:
+      context: ./app_parser
+    env_file: .env
+    depends_on:
+      - backend_service 
+    ports:
+      - "8001:8001"
+
+  # Telegram Bot
+  telegram_bot_service:
+    build:
+      context: ./app_telegrambot
+    env_file: .env
+    depends_on:
+      - backend_service
+
+volumes:
+  db_data:

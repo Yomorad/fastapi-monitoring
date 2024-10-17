@@ -39,9 +39,7 @@ TELEGRAM_BOT_TOKEN='your_bot_token' # Поставь новый токен от 
 ```bash
 docker compose up --build
 # Completed!
-# в конце работы выключаем контейнеры и удаляём
-docker compose down
-# если надо почистить тома
+# в конце работы выключаем контейнеры и удаляем привязанные тома
 docker compose down -v
 ```
 

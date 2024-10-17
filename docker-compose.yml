@@ -19,6 +19,9 @@ services:
       - db_service
     ports:
       - "8000:8000"
+    # Пишем последовательно команды для миграции и запуска приложения
+    command: ["bash", "-c", "bash init_migration_scripts.sh && uvicorn main:app --host 0.0.0.0 --port 8000"]
+
 
   # Парсер
   parser_service:

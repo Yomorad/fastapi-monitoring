@@ -7,7 +7,8 @@ from database import SessionLocal, engine
 import models, schemas
 
 load_dotenv()
-models.Base.metadata.create_all(bind=engine)
+# управляю миграциями через alembic, но на всякий случай сделал так
+# models.Base.metadata.create_all(bind=engine)
 
 API_URL_PARSER = os.getenv("API_URL_PARSER")
 

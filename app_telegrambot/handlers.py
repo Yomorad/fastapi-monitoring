@@ -6,9 +6,15 @@ from aiogram.fsm.context import FSMContext
 from config import dp, FASTAPI_API_URL
 from states import ProductStates
 
-# Команда /start для приветствия
 @dp.message(Command('start'))
 async def send_welcome(message: types.Message):
+    """
+    Обрабатывает команду /start и отправляет приветственное сообщение
+    пользователю с доступными командами.
+
+    Args:
+        message (types.Message): Сообщение от пользователя.
+    """
     await message.answer(
         "Привет! Я бот для мониторинга цен. Вот что я умею:\n"
         "/add - Добавить товар на мониторинг\n"
@@ -17,15 +23,28 @@ async def send_welcome(message: types.Message):
         "/history - История цен на товар"
     )
 
-# Добавление товара на мониторинг
 @dp.message(Command('add'))
 async def add_product(message: types.Message, state: FSMContext):
+    """
+    Обрабатывает команду /add и запрашивает ссылку на товар для добавления
+    его в мониторинг.
+
+    Args:
+        message (types.Message): Сообщение от пользователя.
+        state (FSMContext): Контекст состояния для управления состояниями.
+    """
     await message.answer("Отправьте ссылку на товар для мониторинга или 'Отмена' для выхода:")
     await state.set_state(ProductStates.waiting_for_link)
 
-# Обработка ссылки на товар
 @dp.message(ProductStates.waiting_for_link)
 async def process_link(message: types.Message, state: FSMContext):
+    """
+    Обрабатывает сообщение с ссылкой на товар и добавляет товар в мониторинг.
+
+    Args:
+        message (types.Message): Сообщение от пользователя.
+        state (FSMContext): Контекст состояния для управления состояниями.
+    """
     if message.text.lower() == 'отмена':
         await state.clear()
         await message.answer("Добавление товара отменено.")
@@ -39,15 +58,27 @@ async def process_link(message: types.Message, state: FSMContext):
         await message.answer("Ошибка при добавлении товара.")
     await state.clear()  # Очищаем состояние после обработки
 
-# Удаление товара
 @dp.message(Command('delete'))
 async def delete_product(message: types.Message, state: FSMContext):
+    """
+    Обрабатывает команду /delete и запрашивает ID товара для удаления.
+
+    Args:
+        message (types.Message): Сообщение от пользователя.
+        state (FSMContext): Контекст состояния для управления состояниями.
+    """
     await message.answer("Введите ID товара для удаления или 'Отмена' для выхода:")
     await state.set_state(ProductStates.waiting_product_id_for_delete_product)
 
-# Обработка ID товара для удаления
 @dp.message(ProductStates.waiting_product_id_for_delete_product)
 async def process_deletion(message: types.Message, state: FSMContext):
+    """
+    Обрабатывает сообщение с ID товара и удаляет товар из мониторинга.
+
+    Args:
+        message (types.Message): Сообщение от пользователя.
+        state (FSMContext): Контекст состояния для управления состояниями.
+    """
     if message.text.lower() == 'отмена':
         await state.clear()
         await message.answer("Удаление товара отменено.")
@@ -65,9 +96,14 @@ async def process_deletion(message: types.Message, state: FSMContext):
         await message.answer("Ошибка при удалении товара или товар не найден.")
     await state.clear()  # Очищаем состояние после обработки
 
-# Получение списка товаров на мониторинге
 @dp.message(Command('list'))
 async def list_products(message: types.Message):
+    """
+    Обрабатывает команду /list и возвращает список товаров на мониторинге.
+
+    Args:
+        message (types.Message): Сообщение от пользователя.
+    """
     response = requests.get(f"{FASTAPI_API_URL}/products/")
     if response.status_code == 200:
         products = response.json()
@@ -80,15 +116,28 @@ async def list_products(message: types.Message):
     else:
         await message.answer("Ошибка при получении списка товаров.")
 
-# Получение истории цен на товар
 @dp.message(Command('history'))
 async def get_price_history(message: types.Message, state: FSMContext):
+    """
+    Обрабатывает команду /history и запрашивает ID товара для 
+    получения его истории цен.
+
+    Args:
+        message (types.Message): Сообщение от пользователя.
+        state (FSMContext): Контекст состояния для управления состояниями.
+    """
     await message.answer("Введите ID товара для получения истории цен или 'Отмена' для выхода:")
     await state.set_state(ProductStates.waiting_product_id_for_getting_history)
 
-# Обработка ID товара для истории цен
 @dp.message(ProductStates.waiting_product_id_for_getting_history)
 async def process_history_request(message: types.Message, state: FSMContext):
+    """
+    Обрабатывает ID товара и возвращает его историю цен.
+
+    Args:
+        message (types.Message): Сообщение от пользователя.
+        state (FSMContext): Контекст состояния для управления состояниями.
+    """
     if message.text.lower() == 'отмена':
         await state.clear()
         await message.answer("Запрос истории цен отменён.")
@@ -111,13 +160,23 @@ async def process_history_request(message: types.Message, state: FSMContext):
         await message.answer("Ошибка при получении истории цен.")
     await state.clear()  # Очищаем состояние после обработки
 
-# Обработка некорректных команд
 @dp.message(F.text)
 async def handle_unknown_message(message: types.Message):
+    """
+    Обрабатывает неизвестные команды и отправляет сообщение об ошибке.
+
+    Args:
+        message (types.Message): Сообщение от пользователя.
+    """
     await message.answer("Некорректный ввод. Используйте /start для просмотра доступных команд.")
 
-# Функция для регистрации всех обработчиков
 def register_handlers(dp):
+    """
+    Регистрирует все обработчики команд в диспетчере.
+
+    Args:
+        dp: Экземпляр диспетчера для регистрации обработчиков.
+    """
     dp.message.register(send_welcome, Command('start'))
     dp.message.register(add_product, Command('add'))
     dp.message.register(process_link, ProductStates.waiting_for_link)

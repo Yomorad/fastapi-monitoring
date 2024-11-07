@@ -2,8 +2,19 @@ from datetime import datetime
 import requests
 from bs4 import BeautifulSoup
 
-# Функция для парсинга информации о продукте
 def parse_product_data(link):
+    """
+    Парсит информацию о продукте по указанной ссылке.
+
+    Args:
+        link (str): URL страницы продукта, которую нужно распарсить.
+
+    Returns:
+        tuple: Кортеж, содержащий:
+            - name_product (str): Название продукта.
+            - description (str): Полное описание продукта.
+            - rate (str|None): Рейтинг продукта (или None, если он отсутствует).
+    """
     html = requests.get(link).text
     soup = BeautifulSoup(html, 'lxml')
     
@@ -21,8 +32,18 @@ def parse_product_data(link):
 
     return name_product, description, rate
 
-# Функция для обновления цены продукта
 def update_price(link):
+    """
+    Обновляет цену продукта, парсит новую цену по указанной ссылке.
+
+    Args:
+        link (str): URL страницы продукта для получения новой цены.
+
+    Returns:
+        tuple: Кортеж, содержащий:
+            - new_price (str): Новая цена продукта.
+            - timestamp (datetime): Время, когда была зафиксирована новая цена.
+    """
     html = requests.get(link).text
     soup = BeautifulSoup(html, 'lxml')
     new_price = soup.find('span', class_='supreme-product-card__price-discount-price').text

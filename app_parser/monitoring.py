@@ -3,8 +3,16 @@ from parser import parse_product_data
 from time import sleep
 from config import FASTAPI_API_URL
 
-# Периодическая задача для обновления цен всех товаров
 def monitor_products():
+    """
+    Периодическая задача для обновления цен всех товаров.
+
+    Получает список всех товаров из API и обновляет их цены, 
+    извлекая данные с веб-страниц продуктов.
+
+    В процессе работы делает паузу в 3 секунды между запросами 
+    к API для добавления цен, чтобы избежать блокировки.
+    """
     print("Running price update task...")
     response = requests.get(f"{FASTAPI_API_URL}/products/")
     products = response.json()

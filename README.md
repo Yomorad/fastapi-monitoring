@@ -3,7 +3,7 @@
 - FastApi
 - docker-compose
 - PostgreSQL
-- SQLAlchemy
+- SQLAlchemy + Alembic
 - Телеграм бот(aiogram)
 
 
